@@ -1,0 +1,35 @@
+# Render.com deployment configuration
+# https://render.com
+
+services:
+  # Backend Service
+  - type: web
+    name: brainstorming-backend
+    env: python
+    region: oregon
+    plan: free
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: cd backend && uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: PORT
+        value: 8000
+    healthCheckPath: /health
+
+  # Frontend Service (Static Site)
+  - type: web
+    name: brainstorming-frontend
+    env: static
+    region: oregon
+    plan: free
+    buildCommand: cd frontend && npm install && npm run build
+    staticPublishPath: frontend/dist
+    envVars:
+      - key: VITE_BACKEND_URL
+        sync: false  # Set this in Render dashboard after backend deploys
+      - key: VITE_ELEVENLABS_API_KEY
+        sync: false  # Optional
+      - key: VITE_ELEVENLABS_VOICE_ID
+        value: 21m00Tcm4TlvDq8ikWAM
+
